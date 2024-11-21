@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Symptom Checker</title>
+    <style>
+        /* Overall page styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('static\\images\\background.jpg'); /* Replace with your background image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Ensures background remains fixed while scrolling */
+            color: #333;
+            height: 100vh; /* Full viewport height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto; /* Enable scrolling */
+        }
+
+        /* Main container styling */
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            max-width: 700px;
+            width: 90%;
+            text-align: center;
+            transition: transform 0.3s ease;
+            margin-top: 50px; /* To provide space from top */
+        }
+
+        /* Hover effect on container */
+        .container:hover {
+            transform: scale(1.02);
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Header styling */
+        h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+            color: #007BFF;
+        }
+
+        /* Label and select dropdown styling */
+        label {
+            font-size: 18px;
+            color: #555;
+        }
+
+        select {
+            padding: 10px;
+            margin: 10px 0;
+            width: 90%;
+            max-width: 500px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        select:hover {
+            background-color: #f0f0f0;
+        }
+
+        /* Button styling */
+        button {
+            padding: 12px 20px;
+            margin: 10px 0;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Diagnosis list styling */
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+            text-align: left;
+            max-height: 400px; /* Limit the height of the diagnosis list */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
+
+        li {
+            background-color: #f9f9f9;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        /* Hover effect on diagnosis items */
+        li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .condition-title {
+            font-weight: bold;
+            color: #333;
+            font-size: 20px;
+        }
+
+        /* Separate "Get Suggestions" button */
+        .suggestion-button {
+            background-color: #28a745;
+            margin-top: 10px;
+        }
+
+        .suggestion-button:hover {
+            background-color: #218838;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const allSymptoms = [
+                "fever", "cough", "fatigue", "body aches", "sore throat", "runny nose", "headache",
+                "chest pain", "shortness of breath", "dizziness", "nausea", "wheezing", "sneezing",
+                "itchy eyes", "skin rash", "joint pain", "stiffness", "swelling"
+            ];
+
+            const dropdowns = Array.from(document.querySelectorAll('.symptom-dropdown'));
+
+            dropdowns.forEach(dropdown => {
+                allSymptoms.forEach(symptom => {
+                    const option = document.createElement('option');
+                    option.value = symptom;
+                    option.textContent = symptom;
+                    dropdown.appendChild(option);
+                });
+
+                const noneOption = document.createElement('option');
+                noneOption.value = "none";
+                noneOption.textContent = "None";
+                dropdown.appendChild(noneOption);
+
+                dropdown.addEventListener('change', () => updateDropdowns());
+            });
+
+            function updateDropdowns() {
+                const selectedSymptoms = dropdowns.map(d => d.value).filter(value => value && value !== "none");
+
+                dropdowns.forEach(dropdown => {
+                    Array.from(dropdown.options).forEach(option => {
+                        option.disabled = selectedSymptoms.includes(option.value) && option.value !== dropdown.value;
+                    });
+                });
+            }
+
+            // Form validation to ensure at least one symptom is selected
+            const form = document.querySelector('form');
+            form.addEventListener('submit', function(event) {
+                const selectedSymptoms = dropdowns.map(d => d.value).filter(value => value && value !== "none");
+                
+                if (selectedSymptoms.length === 0) {
+                    alert('Please select at least one symptom!');
+                    event.preventDefault();
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Symptom Checker</h1>
+        <form action="/diagnosis" method="POST">
+            <label for="symptoms">Select your symptoms:</label><br>
+
+            <select id="symptom1" name="symptom1" class="symptom-dropdown" required>
+                <option value="">Select symptom 1</option>
+                <option value="none">None</option>
+            </select>
+            <select id="symptom2" name="symptom2" class="symptom-dropdown" required>
+                <option value="">Select symptom 2</option>
+                <option value="none">None</option>
+            </select>
+            <select id="symptom3" name="symptom3" class="symptom-dropdown" required>
+                <option value="">Select symptom 3</option>
+                <option value="none">None</option>
+            </select>
+            <select id="symptom4" name="symptom4" class="symptom-dropdown" required>
+                <option value="">Select symptom 4</option>
+                <option value="none">None</option>
+            </select><br><br>
+
+            <button type="submit">Check Diagnosis</button>
+        </form>
+
+        {% if diagnosis_results %}
+        <h2>Diagnosis Results:</h2>
+        <ul>
+            {% for result in diagnosis_results %}
+            <li>
+                <p class="condition-title">{{ result.condition }} ({{ result.match_percentage }}% match)</p>
+                <p><strong>Stage:</strong> {{ result.stage }}</p>
+                <p><strong>Description:</strong> {{ result.description }}</p>
+                <p><strong>Matched Symptoms:</strong> {{ result.matched_symptoms | join(', ') }}</p>
+                <form action="/suggestions" method="GET">
+                    <input type="hidden" name="condition" value="{{ result.condition }}">
+                    <button type="submit" class="suggestion-button">Get Suggestions for {{ result.condition }}</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+</body>
+</html>
